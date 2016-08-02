@@ -356,10 +356,12 @@ def bulk_upsert(cls, data):
         try:
             InsertQuery(cls, rows=data.values()[i:min(i+step, num_rows)]).upsert().execute()
         except Exception as e:
+            if 'MySQL server has gone away' in str(e):
+                init_database()
             log.warning('%s... Retrying', e)
             continue
 
-        i+=step
+        i += step
 
     flaskDb.close_db(None)
 
